@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin, AbstractBaseUser
 
 # Create your models here.
 
@@ -8,14 +8,44 @@ class FlatNumber(models.Model):
 
     def __str__(self) -> str:
         return self.flat_no
-class CustomUserModel(AbstractUser):
+class CustomUserManager(BaseUserManager):
+    def create_user(self, mobile, password=None, **extra_fields):
+        if not mobile:
+            raise ValueError("Mobile number is required")
+        user = self.model(mobile=mobile, **extra_fields)
+        user.set_password(password)  # hash the password
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, mobile, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(mobile, password, **extra_fields)
+
+
+class CustomUserModel(AbstractBaseUser, PermissionsMixin):
+    ROLE_CHOICES = (
+        ('admin', 'Admin'),
+        ('resident', 'Resident'),
+        ('guard', 'Guard'),
+    )
+
     name = models.CharField(max_length=100, null=True, blank=True)
-    email = models.EmailField(max_length=100,null=True, blank=True)
-    mobile = models.IntegerField(null=True)
-    flat_no = models.ForeignKey(FlatNumber, max_length=10, on_delete=models.CASCADE, null=True, blank=True)
+    email = models.EmailField(max_length=100, null=True, blank=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='resident')
+    mobile = models.CharField(max_length=15, unique=True)  # use as login field
+    flat_no = models.ForeignKey('FlatNumber', on_delete=models.CASCADE, null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'mobile'
+    REQUIRED_FIELDS = []  # nothing else is required
 
     def __str__(self):
-        return self.username
+        return self.mobile
 
 class Visitor(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True)
