@@ -13,14 +13,23 @@ class CustomUserManager(BaseUserManager):
         if not mobile:
             raise ValueError("Mobile number is required")
         user = self.model(mobile=mobile, **extra_fields)
-        user.set_password(password)  # hash the password
+        if password:  # <-- only set if provided
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, mobile, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        return self.create_user(mobile, password, **extra_fields)
+    def create_user(self, mobile, password=None, **extra_fields):
+        if not mobile:
+            raise ValueError("Mobile number is required")
+        user = self.model(mobile=mobile, **extra_fields)
+        if password:  # <-- only set if provided
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
+        user.save(using=self._db)
+        return user
 
 
 class CustomUserModel(AbstractBaseUser, PermissionsMixin):
