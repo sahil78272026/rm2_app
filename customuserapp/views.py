@@ -7,4 +7,7 @@ class UserRegistration(viewsets.ViewSet):
     def create_user(self):
         pass
 
+    def get_users(self):
+        pass
+
 
