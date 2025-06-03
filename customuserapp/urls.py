@@ -7,7 +7,8 @@ urlpatterns = [
     path('get_users/', UserRegistration.as_view({'get':'get_users'})),
     # path('get_users/', UserRegistration.as_view({'get':'get_users'})),
     # path('get_users/', UserRegistration.as_view({'get':'get_users'})),
-     # path('get_users/', UserRegistration.as_view({'get':'get_users'}))
+    # path('get_users/', UserRegistration.as_view({'get':'get_users'}))
+    # path('get_users/', UserRegistration.as_view({'get':'get_users'}))
 
 
 ]
