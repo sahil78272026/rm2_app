@@ -10,4 +10,10 @@ class UserRegistration(viewsets.ViewSet):
     def get_users(self):
         pass
 
+    def update_user(self):
+        pass
+
+    def delete_user(self):
+        pass
+
 
